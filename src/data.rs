@@ -22,10 +22,11 @@ impl Data {
             let data_dir = xdg::BaseDirectories::with_prefix("chair-chooser")?;
             data_dir.place_data_file("data.json")?
         };
+
         #[cfg(windows)]
         let data_file_path = {
             let data_dir = dirs::data_dir()
-                .context("could not get data directory")?
+                .expect("cannot get data directory")
                 .join(env!("CARGO_PKG_NAME"));
             let _ = fs::create_dir_all(&data_dir);
 
