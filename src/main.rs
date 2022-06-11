@@ -13,44 +13,23 @@ pub struct Cli {
     /// List members of the meeting.
     ///
     /// This option will also print the last meeting chair and the hidden member(s).
-    #[clap(long)]
+    #[clap(long, short = 'l')]
     list: bool,
     /// Specify who was the last meeting chair.
     #[clap(long)]
     last_chair: Option<String>,
-    /// Add a new member to the team.
-    ///
-    /// Cannot be used with `--add-members`.
-    #[clap(long, conflicts_with = "add-members")]
-    add_member: Option<String>,
-    /// Add members to the team.
-    ///
-    /// Cannot be used with `--add-member`.
-    #[clap(long, conflicts_with = "add-member")]
+    /// Add member(s) to the team.
+    #[clap(long, short = 'a')]
     add_members: Vec<String>,
-    /// Remove temporarily a member of the team.
-    ///
-    /// Cannot be used with `--hide-members`.
-    #[clap(long, conflicts_with = "hide-members")]
-    hide_member: Option<String>,
-    /// Remove temporarily members of the team.
-    ///
-    /// Cannot be used with `--hide-member`.
-    #[clap(long, conflicts_with = "hide-member")]
+    /// Remove temporarily member(s) of the team.
+    #[clap(long, short = 'h', requires = "input")]
     hide_members: Vec<String>,
-    /// Remove a member of the team.
-    ///
-    /// Cannot be used with `--remove-member`
-    #[clap(long, conflicts_with = "remove-members")]
-    remove_member: Option<String>,
-    /// Remove members of the team.
-    ///
-    /// Cannot be used with `--remove-members`.
-    #[clap(long, conflicts_with = "remove-member")]
+    /// Remove member(s) of the team.
+    #[clap(long, short = 'r')]
     remove_members: Vec<String>,
     /// Roll the dice.
     ///
-    /// All options given will be executed before selecting the next meeting chair.
+    /// All options given will be executed before the run.
     #[clap(long)]
     run: bool,
 }

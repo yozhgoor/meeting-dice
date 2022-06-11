@@ -10,16 +10,8 @@ pub fn run(cli: Cli, mut data: Data) -> Result<()> {
         data.change_last_chair(name)?
     }
 
-    if let Some(name) = cli.add_member {
-        data.add_member(name)
-    }
-
     if !cli.add_members.is_empty() {
         data.add_members(cli.add_members)
-    }
-
-    if let Some(name) = cli.remove_member {
-        data.remove_member(name)
     }
 
     if !cli.remove_members.is_empty() {
@@ -27,11 +19,13 @@ pub fn run(cli: Cli, mut data: Data) -> Result<()> {
     }
 
     let mut hidden_ids = Vec::new();
-    if let Some(name) = cli.hide_member {
-        if let Some(id) = data.get_member_id(name) {
-            hidden_ids.push(id);
+    if !cli.hide_members.is_empty() {
+        for name in cli.hide_members {
+            if let Some(id) = data.get_member_id(name) {
+                hidden_ids.push(id);
+            }
         }
-    }
+    };
 
     if cli.list {
         list(&data, &hidden_ids)
