@@ -17,21 +17,7 @@ impl Data {
     }
 
     pub fn get_or_create() -> Result<Self> {
-        #[cfg(unix)]
-        let data_file_path = {
-            let data_dir = xdg::BaseDirectories::with_prefix("meeting-dice")?;
-            data_dir.place_data_file("data.json")?
-        };
-
-        #[cfg(windows)]
-        let data_file_path = {
-            let data_dir = dirs::data_dir()
-                .expect("cannot get data directory")
-                .join(env!("CARGO_PKG_NAME"));
-            let _ = fs::create_dir_all(&data_dir);
-
-            data_dir.join("data.json")
-        };
+        let data_file_path = get_data_file_path()?;
 
         let data: Self = match fs::read(&data_file_path) {
             Ok(file) => serde_json::from_slice(&file)?,
@@ -102,12 +88,42 @@ impl Data {
             }
         }
     }
+
+    pub fn save(self) -> Result<()> {
+        let data_file_path = get_data_file_path()?;
+        fs::write(&data_file_path, serde_json::to_string(&self)?)?;
+
+        println!("Saved! Have a great meeting");
+        Ok(())
+    }
 }
 
 impl Default for Data {
     fn default() -> Self {
         Self::new()
     }
+}
+
+use std::path::PathBuf;
+
+fn get_data_file_path() -> Result<PathBuf> {
+    #[cfg(unix)]
+    let data_file_path = {
+        let data_dir = xdg::BaseDirectories::with_prefix("meeting-dice")?;
+        data_dir.place_data_file("data.json")?
+    };
+
+    #[cfg(windows)]
+    let data_file_path = {
+        let data_dir = dirs::data_dir()
+            .expect("cannot get data directory")
+            .join(env!("CARGO_PKG_NAME"));
+        let _ = fs::create_dir_all(&data_dir);
+
+        data_dir.join("data.json")
+    };
+
+    Ok(data_file_path)
 }
 
 #[cfg(test)]
