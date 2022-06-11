@@ -1,6 +1,6 @@
 [package]
 name = "meeting-dice"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 description = "A CLI tool that helps you to choose in a team who's gonna be the next meeting chair."
