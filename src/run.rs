@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use rand::{thread_rng, Rng};
 use std::io;
 
@@ -7,7 +7,8 @@ use crate::Cli;
 
 pub fn run(cli: Cli, mut data: Data) -> Result<()> {
     if let Some(name) = cli.last_chair {
-        data.change_last_chair(name)?
+        data.change_last_chair(name)
+            .context("cannot change last chair")?;
     }
 
     if !cli.add_members.is_empty() {
@@ -32,8 +33,10 @@ pub fn run(cli: Cli, mut data: Data) -> Result<()> {
     }
 
     if cli.run {
-        execute(data, hidden_ids)
+        execute(&mut data, hidden_ids)
     }
+
+    data.save().context("cannot save data")?;
 
     Ok(())
 }
@@ -66,7 +69,7 @@ pub fn list(data: &Data, hidden_ids: &[usize]) {
     }
 }
 
-pub fn execute(mut data: Data, mut hidden_ids: Vec<usize>) {
+pub fn execute(mut data: &mut Data, mut hidden_ids: Vec<usize>) {
     if data.members.is_empty() {
         println!("There is no one to be meeting chair");
     } else {

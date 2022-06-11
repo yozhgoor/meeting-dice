@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use clap::Parser;
 
 mod data;
@@ -22,7 +22,7 @@ pub struct Cli {
     #[clap(long, short = 'a')]
     add_members: Vec<String>,
     /// Remove temporarily member(s) of the team.
-    #[clap(long, short = 'h', requires = "input")]
+    #[clap(long, short = 'h', requires = "run")]
     hide_members: Vec<String>,
     /// Remove member(s) of the team.
     #[clap(long, short = 'r')]
@@ -36,7 +36,7 @@ pub struct Cli {
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
-    let data = Data::get_or_create()?;
+    let data = Data::get_or_create().context("cannot get or create data file")?;
 
     run(cli, data)?;
 
