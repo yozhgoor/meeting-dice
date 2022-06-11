@@ -41,7 +41,7 @@ jobs:
         with:
           name: build-windows
           path: |
-            target/x86_64-pc-windows-msvc/release/meeting-dice
+            target/x86_64-pc-windows-msvc/release/meeting-dice.exe
 
   build-osx:
     runs-on: macos-latest
