@@ -39,6 +39,12 @@ This will print:
 meeting-dice --last-chair <name>
 ```
 
+## Specify who was the last note taker.
+
+```
+meeting-dice --last-note-taker <name>
+```
+
 This command will return an error if the `name` doesn't exists in the members list.
 
 ## Add member(s) to the team
@@ -82,3 +88,14 @@ this:
 ```
 meeting-dice --hide-members <names> --run
 ```
+
+### Choose a new note taker with the new meeting chair.
+
+To specify that you want to choose a new meeting chair and a note taker for this meeting, you can
+use:
+
+```
+meeting-dice --note-taker --run
+```
+
+If you don't choose a new note taker, the last note taker will stay the same.

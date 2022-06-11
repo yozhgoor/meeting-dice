@@ -37,7 +37,7 @@ pub struct Cli {
     /// Specify if this meeting needs a note taker.
     ///
     /// Note that the last note taker will remain the same if it is set to false.
-    #[clap(long, short = 'n')]
+    #[clap(long, short = 'n', requires = "run")]
     note_taker: bool,
     /// Roll the dice.
     ///
