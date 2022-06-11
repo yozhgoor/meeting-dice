@@ -11,6 +11,11 @@ pub fn run(cli: Cli, mut data: Data) -> Result<()> {
             .context("cannot change last chair")?;
     }
 
+    if let Some(name) = cli.last_note_taker {
+        data.change_last_note_taker(name)
+            .context("cannot change last note taker")?;
+    }
+
     if !cli.add_members.is_empty() {
         data.add_members(cli.add_members)
     }
@@ -33,7 +38,7 @@ pub fn run(cli: Cli, mut data: Data) -> Result<()> {
     }
 
     if cli.run {
-        execute(&mut data, hidden_ids)
+        execute(&mut data, hidden_ids, cli.note_taker)
     }
 
     data.save().context("cannot save data")?;
@@ -67,19 +72,42 @@ pub fn list(data: &Data, hidden_ids: &[usize]) {
     if let Some(name) = &data.last_chair {
         println!("The last meeting chair was: {}", name)
     }
+    if let Some(name) = &data.last_note_taker {
+        println!("The last note taker was: {}", name)
+    }
 }
 
-pub fn execute(mut data: &mut Data, mut hidden_ids: Vec<usize>) {
+pub fn execute(mut data: &mut Data, hidden_ids: Vec<usize>, note_taker: bool) {
     if data.members.is_empty() {
         println!("There is no one to be meeting chair");
     } else {
-        if let Some(name) = data.last_chair.as_deref() {
+        let last_chair_id = if let Some(name) = data.last_chair.as_deref() {
             if let Some(id) = data.get_member_id(name) {
                 if !hidden_ids.contains(&id) {
-                    hidden_ids.push(id);
+                    Some(id)
+                } else {
+                    None
                 }
+            } else {
+                None
             }
-        }
+        } else {
+            None
+        };
+
+        let last_note_taker_id = if let Some(name) = data.last_note_taker.as_deref() {
+            if let Some(id) = data.get_member_id(name) {
+                if !hidden_ids.contains(&id) {
+                    Some(id)
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        } else {
+            None
+        };
 
         data.last_chair = None;
         while data.last_chair.is_none() {
@@ -89,16 +117,44 @@ pub fn execute(mut data: &mut Data, mut hidden_ids: Vec<usize>) {
             let mut chair_index = None;
             while chair_index.is_none() {
                 let random_id = rng.gen_range(0..=len);
-                if !hidden_ids.contains(&random_id) {
+
+                if let Some(id) = last_chair_id {
+                    if id == random_id {
+                        chair_index = None;
+                    }
+                } else if !hidden_ids.contains(&random_id) {
                     chair_index = Some(random_id);
                 }
             }
 
-            let chosen_one =
-                &data.members[chair_index.expect("the chosen one cannot be `None`")].clone();
+            let mut note_taker_index = None;
+            if note_taker {
+                while note_taker_index.is_none() {
+                    let random_id = rng.gen_range(0..=len);
 
-            println!("The new chair is {}", chosen_one);
-            println!("Continue or choose again? (y/n)");
+                    if let Some(id) = last_note_taker_id {
+                        if id == random_id {
+                            note_taker_index = None;
+                        }
+                    } else if !hidden_ids.contains(&random_id) {
+                        note_taker_index = Some(random_id)
+                    }
+                }
+            }
+
+            let new_chair =
+                &data.members[chair_index.expect("the chosen one cannot be `None`")].clone();
+            println!("The new chair is {}", new_chair);
+
+            let new_note_taker = if let Some(i) = note_taker_index {
+                let new_note_taker = &data.members[i];
+                println!("The new note taker is {}", new_note_taker);
+
+                Some(new_note_taker.clone())
+            } else {
+                None
+            };
+            println!("Continue? (y/n)");
             let mut res = String::new();
 
             io::stdin()
@@ -106,9 +162,14 @@ pub fn execute(mut data: &mut Data, mut hidden_ids: Vec<usize>) {
                 .expect("Failed to read line");
 
             match res.as_str() {
-                "y" | "Y" | "Yes" | "YES" | "yes" => data
-                    .change_last_chair(chosen_one)
-                    .expect("cannot be out of the list"),
+                "y" | "Y" | "Yes" | "YES" | "yes" => {
+                    data.change_last_chair(new_chair)
+                        .expect("last chair exists in the members list");
+                    if let Some(name) = new_note_taker {
+                        data.change_last_note_taker(name)
+                            .expect("last note taker exists in the members list");
+                    }
+                }
                 "n" | "N" | "No" | "NO" | "no" => data.last_chair = None,
                 _ => continue,
             }

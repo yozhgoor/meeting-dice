@@ -12,12 +12,16 @@ use crate::run::run;
 pub struct Cli {
     /// List members of the meeting.
     ///
-    /// This option will also print the last meeting chair and the hidden member(s).
+    /// This option will also print the last meeting chair, the last note taker and the
+    /// hidden member(s).
     #[clap(long, short = 'l')]
     list: bool,
     /// Specify who was the last meeting chair.
     #[clap(long)]
     last_chair: Option<String>,
+    /// Specify who was the last note taker.
+    #[clap(long)]
+    last_note_taker: Option<String>,
     /// Add member(s) to the team.
     #[clap(long, short = 'a')]
     add_members: Vec<String>,
@@ -25,11 +29,19 @@ pub struct Cli {
     #[clap(long, short = 'h', requires = "run")]
     hide_members: Vec<String>,
     /// Remove member(s) of the team.
+    ///
+    /// If a removed member was the last meeting chair or the last note taker, these values will be
+    /// set to `None`.
     #[clap(long, short = 'r')]
     remove_members: Vec<String>,
+    /// Specify if this meeting needs a note taker.
+    ///
+    /// Note that the last note taker will remain the same if it is set to false.
+    #[clap(long, short = 'n', requires = "run")]
+    note_taker: bool,
     /// Roll the dice.
     ///
-    /// All options given will be executed before the run.
+    /// All the options given will be executed before the run.
     #[clap(long)]
     run: bool,
 }

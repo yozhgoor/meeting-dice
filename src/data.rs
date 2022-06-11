@@ -5,6 +5,7 @@ use std::fs;
 #[derive(Deserialize, Serialize)]
 pub struct Data {
     pub last_chair: Option<String>,
+    pub last_note_taker: Option<String>,
     pub members: Vec<String>,
 }
 
@@ -12,6 +13,7 @@ impl Data {
     fn new() -> Self {
         Self {
             last_chair: None,
+            last_note_taker: None,
             members: Vec::new(),
         }
     }
@@ -69,6 +71,17 @@ impl Data {
         Ok(())
     }
 
+    pub fn change_last_note_taker(&mut self, name: impl AsRef<str>) -> Result<()> {
+        let name = name.as_ref();
+        if let Some(_id) = self.get_member_id(name) {
+            self.last_note_taker = Some(name.to_string());
+        } else {
+            bail!("{} doesn't exists in the members list", name);
+        }
+
+        Ok(())
+    }
+
     pub fn add_members(&mut self, names: Vec<impl AsRef<str>>) {
         for name in names {
             if let Some(_id) = self.get_member_id(name.as_ref()) {
@@ -82,6 +95,16 @@ impl Data {
     pub fn remove_members(&mut self, names: Vec<impl AsRef<str>>) {
         for name in names {
             if let Some(id) = self.get_member_id(name.as_ref()) {
+                if let Some(last_chair) = &self.last_chair {
+                    if last_chair == name.as_ref() {
+                        self.last_chair = None;
+                    }
+                }
+                if let Some(last_note_taker) = &self.last_note_taker {
+                    if last_note_taker == name.as_ref() {
+                        self.last_note_taker = None;
+                    }
+                }
                 self.members.remove(id);
             } else {
                 println!("{} doesn't exists in the members list", name.as_ref())
@@ -124,199 +147,4 @@ fn get_data_file_path() -> Result<PathBuf> {
     };
 
     Ok(data_file_path)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    // Common
-
-    fn empty_team() -> Data {
-        Data::new()
-    }
-
-    fn one_member_team_without_last_chair() -> Data {
-        Data {
-            last_chair: None,
-            members: vec!["John".to_string()],
-        }
-    }
-
-    fn one_member_team_with_last_chair() -> Data {
-        Data {
-            last_chair: Some("John".to_string()),
-            members: vec!["John".to_string()],
-        }
-    }
-
-    fn three_members_team_without_last_chair() -> Data {
-        Data {
-            last_chair: None,
-            members: vec!["John".to_string(), "Sonia".to_string(), "Tommy".to_string()],
-        }
-    }
-
-    fn three_members_team_with_last_chair() -> Data {
-        Data {
-            last_chair: Some("Sonia".to_string()),
-            members: vec!["John".to_string(), "Sonia".to_string(), "Tommy".to_string()],
-        }
-    }
-
-    // Tests
-
-    #[test]
-    fn change_last_chair_on_empty_team() {
-        let mut data = empty_team();
-
-        let res = data.change_last_chair("John");
-        assert!(res.is_err())
-    }
-
-    #[test]
-    fn change_last_chair_on_one_member_team_without_last_chair() -> Result<()> {
-        let mut data = one_member_team_without_last_chair();
-
-        data.change_last_chair("John")?;
-        assert_eq!(data.last_chair, Some("John".to_string()));
-
-        let res = data.change_last_chair("Sonia");
-        assert!(res.is_err());
-
-        Ok(())
-    }
-
-    #[test]
-    fn change_last_chair_on_one_member_team_with_last_chair() -> Result<()> {
-        let mut data = one_member_team_with_last_chair();
-
-        data.change_last_chair("John")?;
-        assert_eq!(data.last_chair, Some("John".to_string()));
-
-        let res = data.change_last_chair("Sonia");
-        assert!(res.is_err());
-
-        Ok(())
-    }
-
-    #[test]
-    fn change_last_chair_on_three_member_team_without_last_chair() -> Result<()> {
-        let mut data = three_members_team_without_last_chair();
-
-        data.change_last_chair("John")?;
-        assert_eq!(data.last_chair, Some("John".to_string()));
-        data.change_last_chair("Sonia")?;
-        assert_eq!(data.last_chair, Some("Sonia".to_string()));
-        data.change_last_chair("Tommy")?;
-        assert_eq!(data.last_chair, Some("Tommy".to_string()));
-
-        let res = data.change_last_chair("Noah");
-        assert!(res.is_err());
-
-        Ok(())
-    }
-
-    #[test]
-    fn change_last_chair_on_three_member_team_with_last_chair() -> Result<()> {
-        let mut data = three_members_team_with_last_chair();
-
-        data.change_last_chair("John")?;
-        assert_eq!(data.last_chair, Some("John".to_string()));
-        data.change_last_chair("Sonia")?;
-        assert_eq!(data.last_chair, Some("Sonia".to_string()));
-        data.change_last_chair("Tommy")?;
-        assert_eq!(data.last_chair, Some("Tommy".to_string()));
-
-        let res = data.change_last_chair("Noah");
-        assert!(res.is_err());
-
-        Ok(())
-    }
-
-    #[test]
-    fn get_member_id_on_empty_team() {
-        let data = empty_team();
-
-        assert_eq!(data.get_member_id("John"), None);
-    }
-
-    #[test]
-    fn get_member_id_on_empty_team_lowercase() {
-        let data = empty_team();
-
-        assert_eq!(data.get_member_id("john"), None);
-    }
-
-    #[test]
-    fn get_member_id_on_one_member_team_without_last_chair() {
-        let data = one_member_team_without_last_chair();
-
-        assert_eq!(data.get_member_id("John"), Some(0));
-        assert_eq!(data.get_member_id("Sonia"), None);
-    }
-
-    #[test]
-    fn get_member_id_on_one_member_team_without_last_chair_lowercase() {
-        let data = one_member_team_without_last_chair();
-
-        assert_eq!(data.get_member_id("john"), Some(0));
-        assert_eq!(data.get_member_id("sonia"), None);
-    }
-
-    #[test]
-    fn get_member_id_on_one_member_team_with_last_chair() {
-        let data = one_member_team_with_last_chair();
-
-        assert_eq!(data.get_member_id("John"), Some(0));
-        assert_eq!(data.get_member_id("Sonia"), None);
-    }
-
-    #[test]
-    fn get_member_id_on_one_member_team_with_last_chair_lowercase() {
-        let data = one_member_team_with_last_chair();
-
-        assert_eq!(data.get_member_id("john"), Some(0));
-        assert_eq!(data.get_member_id("sonia"), None);
-    }
-
-    #[test]
-    fn get_member_id_on_three_member_team_without_last_chair() {
-        let data = three_members_team_without_last_chair();
-
-        assert_eq!(data.get_member_id("John"), Some(0));
-        assert_eq!(data.get_member_id("Sonia"), Some(1));
-        assert_eq!(data.get_member_id("Tommy"), Some(2));
-        assert_eq!(data.get_member_id("Noah"), None);
-    }
-
-    #[test]
-    fn get_member_id_on_three_member_team_without_last_chair_lowercase() {
-        let data = three_members_team_without_last_chair();
-
-        assert_eq!(data.get_member_id("john"), Some(0));
-        assert_eq!(data.get_member_id("sonia"), Some(1));
-        assert_eq!(data.get_member_id("tommy"), Some(2));
-        assert_eq!(data.get_member_id("noah"), None);
-    }
-
-    #[test]
-    fn get_member_id_on_three_member_team_with_last_chair() {
-        let data = three_members_team_with_last_chair();
-
-        assert_eq!(data.get_member_id("John"), Some(0));
-        assert_eq!(data.get_member_id("Sonia"), Some(1));
-        assert_eq!(data.get_member_id("Tommy"), Some(2));
-        assert_eq!(data.get_member_id("Noah"), None);
-    }
-
-    #[test]
-    fn get_member_id_on_three_member_team_with_last_chair_lowercase() {
-        let data = three_members_team_with_last_chair();
-
-        assert_eq!(data.get_member_id("john"), Some(0));
-        assert_eq!(data.get_member_id("sonia"), Some(1));
-        assert_eq!(data.get_member_id("tommy"), Some(2));
-        assert_eq!(data.get_member_id("noah"), None);
-    }
 }
