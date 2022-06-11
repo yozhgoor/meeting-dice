@@ -83,32 +83,23 @@ impl Data {
         Ok(())
     }
 
-    pub fn add_member(&mut self, name: impl AsRef<str>) {
-        let name = name.as_ref();
-        if self.get_member_id(name).is_none() {
-            println!("{} already exists in the members list", name)
-        } else {
-            self.members.push(name.to_string())
-        }
-    }
-
     pub fn add_members(&mut self, names: Vec<impl AsRef<str>>) {
         for name in names {
-            self.add_member(name)
-        }
-    }
-
-    pub fn remove_member(&mut self, name: impl AsRef<str>) {
-        if let Some(id) = self.get_member_id(name.as_ref()) {
-            self.members.remove(id);
-        } else {
-            println!("{} doesn't exists in the members list", name.as_ref())
+            if let Some(_id) = self.get_member_id(name.as_ref()) {
+                println!("{} already exists in the members list", name.as_ref())
+            } else {
+                self.members.push(name.as_ref().to_string())
+            }
         }
     }
 
     pub fn remove_members(&mut self, names: Vec<impl AsRef<str>>) {
         for name in names {
-            self.remove_member(name)
+            if let Some(id) = self.get_member_id(name.as_ref()) {
+                self.members.remove(id);
+            } else {
+                println!("{} doesn't exists in the members list", name.as_ref())
+            }
         }
     }
 }
