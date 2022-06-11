@@ -39,13 +39,15 @@ This will print:
 meeting-dice --last-chair <name>
 ```
 
+This command will return an error if `name` doesn't exists in the member list.
+
 ## Specify who was the last note taker.
 
 ```
 meeting-dice --last-note-taker <name>
 ```
 
-This command will return an error if the `name` doesn't exists in the members list.
+This command will return an error if `name` doesn't exists in the members list.
 
 ## Add member(s) to the team
 
