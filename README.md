@@ -9,7 +9,7 @@
 [actions-url]: https://github.com/yozhgoor/meeting-dice/actions
 [crates-version-badge]: https://img.shields.io/crates/v/meeting-dice
 [crates-url]: https://crates.io/crates/meeting-dice
-[deps-badge]: https://deps.rs/crate/meeting-dice/0.1.1/status.svg
+[deps-badge]: https://deps.rs/crate/meeting-dice/0.1.5/status.svg
 [deps-url]: https://deps.rs/crate/meeting-dice
 [licenses-badge]: https://img.shields.io/crates/l/meeting-dice
 
