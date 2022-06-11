@@ -15,7 +15,7 @@ jobs:
         uses: hecrj/setup-rust-action@v1
         with:
           targets: x86_64-unknown-linux-gnu
-      - name: Build release (Windows)
+      - name: Build release (Linux)
         uses: actions-rs/cargo@v1
         with:
           command: build
