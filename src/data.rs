@@ -19,7 +19,7 @@ impl Data {
     pub fn get_or_create() -> Result<Self> {
         #[cfg(unix)]
         let data_file_path = {
-            let data_dir = xdg::BaseDirectories::with_prefix("chair-chooser")?;
+            let data_dir = xdg::BaseDirectories::with_prefix("meeting-dice")?;
             data_dir.place_data_file("data.json")?
         };
 
