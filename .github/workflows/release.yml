@@ -76,7 +76,7 @@ jobs:
         with:
           name: build-windows
           path: build-windows
-      - run: mv build-windows/meeting-dice build-windows/meeting-dice-${{ steps.get_version.outputs.VERSION }}-windows-x86_64
+      - run: mv build-windows/meeting-dice.exe build-windows/meeting-dice-${{ steps.get_version.outputs.VERSION }}-windows-x86_64.exe
 
       - uses: actions/download-artifact@v2
         with:
