@@ -95,12 +95,12 @@ impl Data {
     pub fn remove_members(&mut self, names: Vec<impl AsRef<str>>) {
         for name in names {
             if let Some(id) = self.get_member_id(name.as_ref()) {
-                if let Some(last_chair) = self.last_chair {
+                if let Some(last_chair) = &self.last_chair {
                     if last_chair == name.as_ref() {
                         self.last_chair = None;
                     }
                 }
-                if let Some(last_note_taker) = self.last_note_taker {
+                if let Some(last_note_taker) = &self.last_note_taker {
                     if last_note_taker == name.as_ref() {
                         self.last_note_taker = None;
                     }
