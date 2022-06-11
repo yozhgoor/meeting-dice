@@ -31,7 +31,7 @@ jobs:
         uses: actions-rs/clippy-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          args: -- -D warnings
+          args: --tests -- -D warnings
 
   test-windows:
     runs-on: windows-latest
